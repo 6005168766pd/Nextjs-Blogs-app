@@ -45,18 +45,15 @@ const page = ({ params }) => {
             {data.title}
           </h1>
           <Image
-            className="mx-auto mt-6 border border-white rounded-full "
+            className="mx-auto mt-6 border border-white rounded-full"
             src={
-              data.author_img && data.author_img.startsWith("http")
+              data?.author_img?.startsWith("http")
                 ? data.author_img
                 : assets.default_author_img
             }
             width={60}
             height={60}
-            alt={data.author || "Author"}
-            onError={(e) => {
-              e.target.src = assets.default_author_img;
-            }}
+            alt={data?.author || "Author"}
           />
           <p className="mt-1 pb-2 text-large max-w-[740px] mx-auto">
             {data.author}
