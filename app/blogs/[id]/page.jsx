@@ -46,10 +46,17 @@ const page = ({ params }) => {
           </h1>
           <Image
             className="mx-auto mt-6 border border-white rounded-full "
-            src={data.author_img}
+            src={
+              data.author_img && data.author_img.startsWith("http")
+                ? data.author_img
+                : assets.default_author_img
+            }
             width={60}
             height={60}
-            alt=""
+            alt={data.author || "Author"}
+            onError={(e) => {
+              e.target.src = assets.default_author_img;
+            }}
           />
           <p className="mt-1 pb-2 text-large max-w-[740px] mx-auto">
             {data.author}
@@ -58,10 +65,17 @@ const page = ({ params }) => {
         <div className="mx-5 max-w-[800px] md:mx-auto mt-[-100px] mb-10">
           <Image
             className="border-4 border-white"
-            src={data.image}
-            alt=""
+            src={
+              data.image && data.image.startsWith("http")
+                ? data.image
+                : assets.default_blog_img
+            }
+            alt={data.title || "Blog Image"}
             height={720}
             width={1280}
+            onError={(e) => {
+              e.target.src = assets.default_blog_img;
+            }}
           />
           <div
             className="blog-content"

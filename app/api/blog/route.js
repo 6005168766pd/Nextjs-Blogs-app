@@ -1,7 +1,13 @@
 import connectDB from "@/lib/config/db";
 import Blogmodel from "@/lib/models/blogmodel";
 import { title } from "process";
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const { NextResponse } = require("next/server");
 const fs = require('fs');
 const path = require('path');
@@ -10,13 +16,6 @@ const LoadDB = async () => {
 };
 LoadDB();
 
-// Cloudinary config (ensure these are set in your environment variables)
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
 // API endpoint for getting all blogs
 export async function GET(request) {
   const blogId = request.nextUrl.searchParams.get("id");
@@ -39,7 +38,7 @@ export async function POST(request) {
     const buffer = Buffer.from(arrayBuffer);
     // Upload to Cloudinary
     imgUrl = await new Promise((resolve, reject) => {
-      const stream = cloudinary.v2.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
+      const stream = cloudinary.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
         if (err) return reject(err);
         resolve(result.secure_url);
       });
