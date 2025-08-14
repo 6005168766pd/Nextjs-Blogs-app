@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    domains: ['res.cloudinary.com'], // allow Cloudinary
+    formats: ['image/avif', 'image/webp'],
+  },
+};
 
-export default nextConfig;
+module.exports = nextConfig;
