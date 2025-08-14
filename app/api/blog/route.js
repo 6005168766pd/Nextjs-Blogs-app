@@ -16,47 +16,74 @@ const LoadDB = async () => {
 };
 LoadDB();
 
-// API endpoint for getting all blogs
 export async function GET(request) {
   const blogId = request.nextUrl.searchParams.get("id");
+
   if (blogId) {
     const blog = await Blogmodel.findById(blogId);
+    if (blog) {
+      // Fix old image paths if needed
+      if (!blog.image.startsWith("http")) blog.image = "";
+      if (!blog.author_img.startsWith("http")) blog.author_img = "";
+    }
     return NextResponse.json(blog);
-  }
-  else {
+  } else {
     const blogs = await Blogmodel.find({});
+    blogs.forEach(blog => {
+      if (!blog.image.startsWith("http")) blog.image = "";
+      if (!blog.author_img.startsWith("http")) blog.author_img = "";
+    });
     return NextResponse.json({ blogs });
   }
 }
+
 // API endpoint for uploading blogs
 export async function POST(request) {
   const formData = await request.formData();
+
+  // Upload main blog image
   const image = formData.get('image');
   let imgUrl = "";
-  if (image) {
+  if (image && typeof image !== 'string') {
     const arrayBuffer = await image.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    // Upload to Cloudinary
     imgUrl = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
+      cloudinary.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
         if (err) return reject(err);
         resolve(result.secure_url);
-      });
-      stream.end(buffer);
+      }).end(buffer);
     });
   }
+
+  // Upload author image if provided
+  const authorImg = formData.get('author_img');
+  let authorImgUrl = "";
+  if (authorImg && typeof authorImg !== 'string') {
+    const arrayBuffer = await authorImg.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    authorImgUrl = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ folder: "authors" }, (err, result) => {
+        if (err) return reject(err);
+        resolve(result.secure_url);
+      }).end(buffer);
+    });
+  } else {
+    authorImgUrl = typeof authorImg === 'string' ? authorImg : "";
+  }
+
   const blogData = {
-    title: `${formData.get('title')}`,
-    description: `${formData.get('description')}`,
-    category: `${formData.get('category')}`,
-    author: `${formData.get('author')}`,
+    title: formData.get('title') || "",
+    description: formData.get('description') || "",
+    category: formData.get('category') || "",
+    author: formData.get('author') || "",
     image: imgUrl,
-    author_img: `${formData.get('author_img')}`,
+    author_img: authorImgUrl,
   };
+
   await Blogmodel.create(blogData);
-  console.log("Blog Saved");
   return NextResponse.json({ success: true, message: "Blog created successfully", data: blogData });
 }
+
 // API endpoint for deleting blog
 export async function DELETE(request) {
   try {
