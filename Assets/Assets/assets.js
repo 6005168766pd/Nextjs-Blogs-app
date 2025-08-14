@@ -37,7 +37,8 @@ export const assets = {
     blog_icon,
     add_icon,
     email_icon,
-    upload_area
+    upload_area,
+    default_author_img: "https://res.cloudinary.com/dcvldonrc/image/upload/v1755192621/profile_icon_icttv6.png"
 }
 
 export const blog_data = [{
